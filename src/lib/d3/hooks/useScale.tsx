@@ -17,9 +17,9 @@ export const useScale = <S extends Scale>({
   numTicks?: number;
   type: S;
 } & Partial<ScaleChainable<S>>): {
-  length: number;
   scale: ScaleI<S>;
   scaleTicks: ScaleTick[];
+  size: number;
 } => {
   const scale = useMemo(() => {
     let d3Scale;
@@ -67,7 +67,7 @@ export const useScale = <S extends Scale>({
     if ("ticks" in scale) {
       const tickVals = scale.ticks(numTicks);
       return tickVals.reduce((ticks, curr) => {
-        const tickPos = scale(curr);
+        const tickPos = scale(curr) - scale(0);
         ticks.push([curr, tickPos]);
         return ticks;
       }, [] as ScaleTick[]);
@@ -85,7 +85,7 @@ export const useScale = <S extends Scale>({
     }
   }, [scale]);
 
-  const length = useMemo(() => {
+  const size = useMemo(() => {
     let startBand: number | undefined;
     let endBand: number | undefined;
     if ("ticks" in scale) {
@@ -97,8 +97,8 @@ export const useScale = <S extends Scale>({
     }
 
     if (typeof startBand !== "number" || typeof endBand !== "number") return 0;
-    return Math.abs(endBand + startBand);
+    return Math.abs(endBand - startBand);
   }, [scale]);
 
-  return { length, scale: scale as ScaleI<S>, scaleTicks };
+  return { size, scale: scale as ScaleI<S>, scaleTicks };
 };

@@ -1,31 +1,20 @@
-import { Axes } from "../components/Axes";
+import { Axes, type D3Margin } from "../components/Axes";
 import { useScale } from "../hooks";
 import * as d3 from "d3";
 
-export const BarChart = () => {
-  const data = [
-    { label: "A", value: 0.08167 },
-    { label: "B", value: 0.01492 },
-    { label: "C", value: 0.02782 },
-    { label: "D", value: 0.04253 },
-    { label: "E", value: 0.12702 },
-    { label: "F", value: 0.02288 },
-    { label: "G", value: 0.02015 },
-  ];
-
-  // Declare the chart dimensions and margins.
-  const width = 928;
-  const height = 500;
-  const marginTop = 30;
-  const marginRight = 0;
-  const marginBottom = 30;
-  const marginLeft = 40;
-
-  const {
-    length: xLength,
-    scale: xScale,
-    scaleTicks: xTicks,
-  } = useScale({
+export const BarChart = ({
+  data,
+  height,
+  width,
+  // see https://observablehq.com/@d3/margin-convention
+  margin = { top: 0, right: 0, bottom: 0, left: 0 },
+}: {
+  data: { label: string; value: number }[];
+  height: number;
+  width: number;
+  margin: D3Margin;
+}) => {
+  const { scale: xScale, scaleTicks: xTicks } = useScale({
     type: "band",
     domain: d3.groupSort(
       data,
@@ -33,44 +22,42 @@ export const BarChart = () => {
       (d) => d.label,
     ),
     padding: 0.1,
-    range: [marginLeft, width - marginRight],
+    range: [margin.left, width - margin.right],
   });
 
   const {
-    length: yLength,
+    size: yLength,
     scale: yScale,
     scaleTicks: yTicks,
   } = useScale({
     type: "linear",
     domain: [0, d3.max(data, (d) => d.value) ?? 0],
-    range: [height - marginBottom, marginTop],
+    range: [height - margin.bottom, margin.top],
   });
-
-  console.log({ xLength, yLength });
 
   return (
     <svg
-      width={width}
-      height={height}
-      viewBox={`0 0 ${width} ${height}`}
+      viewBox={`0 0 ${width + margin.left} ${height}`}
       preserveAspectRatio="xMidYMax"
-      style={{ maxWidth: width, width: "100%" }}
     >
       <Axes
-        marginLeft={marginLeft}
-        marginBottom={marginBottom}
+        margin={margin}
         xScale={{
-          width: xLength + marginLeft * 2,
+          width: width - margin.right - margin.left,
           ticks: xTicks,
-          gap: 5,
+          tickOffset: xScale.bandwidth() / 2,
         }}
-        yScale={{ height: yLength, ticks: yTicks }}
+        yScale={{
+          height: yLength + margin.top,
+          tickFormatter: (tickVal) => `${Number(tickVal) * 100}%`,
+          ticks: yTicks,
+        }}
       >
         <g aria-label="bar" fill="steelblue">
           {data.map((d) => (
             <rect
               key={`${d.label}-bar`}
-              x={xScale(d.label)}
+              x={Number(xScale(d.label))}
               y={yScale(d.value)}
               height={yScale(0) - yScale(d.value)}
               width={xScale.bandwidth()}
