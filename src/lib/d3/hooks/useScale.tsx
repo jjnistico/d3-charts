@@ -50,10 +50,7 @@ export const useScale = <S extends Scale>({
         break;
     }
 
-    for (const [func, val] of getEntries(
-      // meh
-      chainables as Required<ScaleChainable<S>>,
-    )) {
+    for (const [func, val] of getEntries(chainables)) {
       if (typeof d3Scale[func] === "function") {
         d3Scale = d3Scale[func](val);
       }
