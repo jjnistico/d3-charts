@@ -7,7 +7,7 @@ import {
   type ScaleI,
   type ScaleTick,
 } from "../types/scale";
-import { getEntries } from "../util";
+import { getEntries } from "../types/util";
 
 export const useScale = <S extends Scale>({
   numTicks = 5,
