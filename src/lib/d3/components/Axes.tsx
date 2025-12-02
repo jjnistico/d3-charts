@@ -1,5 +1,6 @@
 import type { ScaleTick } from "../types/scale";
 import styled from "styled-components";
+import { renderTickLabel } from "./util";
 
 export const Axes = ({
   margin,
@@ -87,15 +88,6 @@ const Axis = styled.line`
 const XAxis = styled(Axis)``;
 
 const YAxis = styled(Axis)``;
-
-const renderTickLabel = (tick: ScaleTick[0]): string => {
-  if (typeof tick === "string") return tick;
-  if (typeof tick === "number") return tick.toString();
-  if (tick instanceof Date) return tick.toDateString();
-
-  console.warn(`unsupported tick type: ${tick}`);
-  return "";
-};
 
 export type D3Margin = {
   top: number;

@@ -9,6 +9,7 @@ const Scales = [
   "pow",
   "symlog",
   "time",
+  "utc",
 ] as const;
 
 export type Scale = (typeof Scales)[number];
@@ -39,8 +40,15 @@ export type ScaleI<T> = T extends "band"
               ? d3.ScaleSymLog<number, number>
               : T extends "time"
                 ? d3.ScaleTime<number, number>
-                : never;
+                : T extends "utc"
+                  ? d3.ScaleTime<number, number>
+                  : never;
 
+/**
+ * Extracts parameter types for d3 scale call signatures
+ */
+export type ScaleParams<T extends Scale> = Parameters<ScaleI<T>>;
+type L = ScaleParams<"log">;
 /**
  * Create a map from methods of T where T is returned by the method
  * i.e. Suitable for method chaining

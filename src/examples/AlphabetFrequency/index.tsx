@@ -1,10 +1,13 @@
 import styled from "styled-components";
-import { BarChart, BarsContainer } from "../../lib/d3/components/BarChart";
 import { FlexBox } from "../../styled/flex";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { media } from "../../styled";
+import { ChartSvg } from "../../lib/d3/components/ChartSvg";
+import { useScale } from "../../lib/d3";
+import * as d3 from "d3";
+import { Axes } from "../../lib/d3/components";
 
-const letterFrequency = [
+const data = [
   { label: "A", value: 0.08167 },
   { label: "B", value: 0.01492 },
   { label: "C", value: 0.02782 },
@@ -33,9 +36,34 @@ const letterFrequency = [
   { label: "Z", value: 0.00074 },
 ];
 
+const height = 500;
+const width = 928;
+const margin = { top: 20, right: 20, bottom: 20, left: 40 };
+
 // example from https://observablehq.com/@d3/bar-chart/2
 export const AlphabetFrequency = () => {
   const isMobile = useIsMobile();
+
+  const { scale: xScale, scaleTicks: xTicks } = useScale({
+    type: "band",
+    domain: d3.groupSort(
+      data,
+      ([d]) => -d.value,
+      (d) => d.label,
+    ),
+    padding: 0.1,
+    range: [margin.left, width - margin.right],
+  });
+
+  const {
+    size: yLength,
+    scale: yScale,
+    scaleTicks: yTicks,
+  } = useScale({
+    type: "linear",
+    domain: [0, d3.max(data, (d) => d.value) ?? 0],
+    range: [height - margin.bottom, margin.top],
+  });
 
   return (
     <FlexBox
@@ -43,20 +71,46 @@ export const AlphabetFrequency = () => {
       $yCenter={!isMobile}
       style={{ width: "100%", height: "100%" }}
     >
-      <YAxisLabel $xCenter={isMobile} $flex="1">
-        Frequency (descending)
-      </YAxisLabel>
-      <FlexBox $flex="8">
-        <StyledBarChart
-          margin={{ top: 20, right: 20, bottom: 20, left: 40 }}
-          data={letterFrequency}
-          height={500}
-          width={928}
-        />
+      <YAxisLabel $xCenter={isMobile}>Frequency (descending)</YAxisLabel>
+      <FlexBox $flex="1">
+        <ChartSvg height={height} margin={margin} width={width}>
+          <BarsContainer>
+            {data.map((d) => (
+              <Bar
+                {...{
+                  key: `bar-${d.label}-${d.value}`,
+                  x: xScale(d.label) ?? 0,
+                  y: yScale(d.value),
+                  width: xScale.bandwidth(),
+                  height: yScale(0) - yScale(d.value),
+                }}
+              />
+            ))}
+          </BarsContainer>
+          <Axes
+            margin={margin}
+            xScale={{
+              width: width,
+              ticks: xTicks,
+              tickOffset: xScale.bandwidth() / 2,
+            }}
+            yScale={{
+              height: yLength + margin.bottom,
+              tickFormatter: (tick) => `${Number(tick) * 100}%`,
+              ticks: yTicks,
+            }}
+          />
+        </ChartSvg>
       </FlexBox>
     </FlexBox>
   );
 };
+
+const Bar = styled.rect``;
+
+const BarsContainer = styled.g`
+  fill: steelblue;
+`;
 
 const YAxisLabel = styled(FlexBox)`
   text-align: center;
@@ -69,10 +123,4 @@ const YAxisLabel = styled(FlexBox)`
     transform: rotate(-90deg);
     max-width: 60px;
   `}
-`;
-
-const StyledBarChart = styled(BarChart)`
-  ${BarsContainer} {
-    fill: steelblue;
-  }
 `;

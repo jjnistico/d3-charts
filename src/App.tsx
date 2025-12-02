@@ -1,22 +1,23 @@
 import styled from "styled-components";
 
 import { AlphabetFrequency } from "./examples/AlphabetFrequency";
-import { media } from "./styled";
+import { FlexBox, media } from "./styled";
+import { ZoomableArea } from "./examples/ZoomableArea";
 
 function App() {
   return (
-    <Page>
+    <Page $flexDir="column">
       <AlphabetFrequency />
+      <ZoomableArea />
     </Page>
   );
 }
 
 export default App;
 
-const Page = styled.div`
+const Page = styled(FlexBox)`
   width: 100%;
   background-color: white;
-  display: flex;
   padding: 20px 40px;
 
   ${media.mobile`

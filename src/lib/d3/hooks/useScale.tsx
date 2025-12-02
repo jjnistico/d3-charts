@@ -48,6 +48,9 @@ export const useScale = <S extends Scale>({
       case "time":
         d3Scale = d3.scaleTime();
         break;
+      case "utc":
+        d3Scale = d3.scaleUtc();
+        break;
     }
 
     for (const [func, val] of getEntries(chainables)) {
