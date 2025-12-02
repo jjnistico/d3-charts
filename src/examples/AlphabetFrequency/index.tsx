@@ -2,10 +2,8 @@ import styled from "styled-components";
 import { FlexBox } from "../../styled/flex";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { media } from "../../styled";
-import { ChartSvg } from "../../lib/d3/components/ChartSvg";
-import { useScale } from "../../lib/d3";
+import { ChartSvg, useScale, Axis, AxisLine } from "../../lib/d3";
 import * as d3 from "d3";
-import { Axes } from "../../lib/d3/components";
 
 const data = [
   { label: "A", value: 0.08167 },
@@ -77,25 +75,29 @@ export const AlphabetFrequency = () => {
           <BarsContainer>
             {data.map((d) => (
               <Bar
-                {...{
-                  key: `bar-${d.label}-${d.value}`,
-                  x: xScale(d.label) ?? 0,
-                  y: yScale(d.value),
-                  width: xScale.bandwidth(),
-                  height: yScale(0) - yScale(d.value),
-                }}
+                key={`bar-${d.label}-${d.value}`}
+                x={xScale(d.label) ?? 0}
+                y={yScale(d.value)}
+                width={xScale.bandwidth()}
+                height={yScale(0) - yScale(d.value)}
               />
             ))}
           </BarsContainer>
-          <Axes
+          <Axis
+            axis="x"
             margin={margin}
-            xScale={{
-              width: width,
+            scale={{
+              length: width,
+              offset: yLength + margin.bottom,
               ticks: xTicks,
               tickOffset: xScale.bandwidth() / 2,
             }}
-            yScale={{
-              height: yLength + margin.bottom,
+          />
+          <StyledYAxis
+            axis="y"
+            margin={margin}
+            scale={{
+              length: yLength + margin.bottom,
               tickFormatter: (tick) => `${Number(tick) * 100}%`,
               ticks: yTicks,
             }}
@@ -112,6 +114,12 @@ const BarsContainer = styled.g`
   fill: steelblue;
 `;
 
+const StyledYAxis = styled(Axis)`
+  ${AxisLine} {
+    display: none;
+  }
+`;
+
 const YAxisLabel = styled(FlexBox)`
   text-align: center;
 
@@ -120,6 +128,7 @@ const YAxisLabel = styled(FlexBox)`
   `}
 
   ${media.tablet`
+    font-size: 14px;
     transform: rotate(-90deg);
     max-width: 60px;
   `}

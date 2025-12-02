@@ -1,2 +1,3 @@
-export * from "./Axes";
-export * from "./BarChart";
+export * from "./Axis";
+export * from "./ChartSvg";
+export * from "./util";

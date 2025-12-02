@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react";
-import type { D3Margin } from "./Axes";
+import type { D3Margin } from "./Axis";
 
 /**
  * svg which acts as the chart's container.

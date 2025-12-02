@@ -45,11 +45,6 @@ export type ScaleI<T> = T extends "band"
                   : never;
 
 /**
- * Extracts parameter types for d3 scale call signatures
- */
-export type ScaleParams<T extends Scale> = Parameters<ScaleI<T>>;
-type L = ScaleParams<"log">;
-/**
  * Create a map from methods of T where T is returned by the method
  * i.e. Suitable for method chaining
  */
