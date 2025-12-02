@@ -18,7 +18,7 @@ export const useScale = <S extends Scale>({
   type: S;
 } & Partial<ScaleChainable<S>>): {
   scale: ScaleI<S>;
-  scaleTicks: ScaleTick[];
+  ticks: ScaleTick[];
   size: number;
 } => {
   const scale = useMemo(() => {
@@ -63,7 +63,7 @@ export const useScale = <S extends Scale>({
   }, [type, chainables]);
 
   // Generate position data for the ticks for this scale.
-  const scaleTicks = useMemo(() => {
+  const ticks = useMemo(() => {
     if ("ticks" in scale) {
       const tickVals = scale.ticks(numTicks);
       return tickVals.reduce((ticks, curr) => {
@@ -97,8 +97,9 @@ export const useScale = <S extends Scale>({
     }
 
     if (typeof startBand !== "number" || typeof endBand !== "number") return 0;
+
     return Math.abs(endBand - startBand);
   }, [scale]);
 
-  return { size, scale: scale as ScaleI<S>, scaleTicks };
+  return { size, scale: scale as ScaleI<S>, ticks };
 };

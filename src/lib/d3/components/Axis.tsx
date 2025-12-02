@@ -2,15 +2,15 @@ import type { ScaleTick } from "../types/scale";
 import styled from "styled-components";
 import { renderTickLabel } from "./util";
 
-interface AxisScale {
-  // offset axis (can be used to change sides)
-  offset?: number;
-  tickFormatter?: (tickVal: ScaleTick[0]) => string;
-  tickOffset?: number;
-  tickSize?: number;
-  ticks: ScaleTick[];
-  length: number;
-}
+type AxisOrientation = "x" | "y";
+
+type AxisPosition<AX extends AxisOrientation> = AX extends "x"
+  ? "top" | "bottom"
+  : "left" | "right";
+
+type CrossAxisPosition<AX extends AxisOrientation> = AX extends "x"
+  ? "left" | "right"
+  : "top" | "bottom";
 
 export interface D3Margin {
   top: number;
@@ -19,82 +19,104 @@ export interface D3Margin {
   left: number;
 }
 
-export const Axis = <AX extends "x" | "y">({
-  axis,
-  className,
-  margin,
-  scale,
-}: {
-  axis: AX;
+interface AxisProps<AX extends AxisOrientation> {
   className?: string;
+  crossAxisPosition?: CrossAxisPosition<AX>;
+  height: number;
   margin: D3Margin;
-  scale: AxisScale;
-}) => {
-  const tickSize = scale.tickSize ?? 8;
+  position?: AxisPosition<AX>;
+  ticks: ScaleTick[];
+  tickFormatter?: (tickVal: ScaleTick[0]) => string;
+  tickOffset?: number;
+  tickSize?: number;
+  width: number;
+}
 
-  if (axis === "x") {
-    return (
-      <g
-        transform={`translate(0,${scale.offset ?? 0})`}
-        fontSize={10}
-        fontFamily="sans-serif"
-        textAnchor="middle"
-        className={className}
-      >
-        {scale.ticks.map((xTick) => (
-          <g
-            className="tick x-tick"
-            opacity={1}
-            transform={`translate(${xTick[1] + Number(scale.tickOffset ?? 0)},0)`}
-            key={`y-tick-${xTick[0]}-${xTick[1]}`}
-          >
-            <line stroke="currentColor" y1={margin.bottom - tickSize} />
-            <text y={margin.bottom - tickSize} dy={"1em"}>
-              {scale.tickFormatter?.(renderTickLabel(xTick[0])) ??
-                renderTickLabel(xTick[0])}
-            </text>
-          </g>
-        ))}
-        <AxisLine
-          className="domain x-domain"
-          x1={margin.left}
-          x2={scale.length - margin.right}
-        />
-      </g>
-    );
-  }
-
+export const XAxis = ({
+  className,
+  crossAxisPosition = "left",
+  height,
+  margin,
+  position = "bottom",
+  ticks,
+  tickFormatter = (tickVal) => tickVal.toString(),
+  tickOffset = 0,
+  tickSize = 8,
+  width,
+}: AxisProps<"x">) => {
   return (
     <g
-      transform={`translate(${scale.offset ?? 0},${scale.length})`}
+      transform={`
+        translate(${crossAxisPosition === "left" ? 0 : width + margin.left},
+        ${position === "top" ? margin.top : height + margin.top})`}
       fontSize={10}
       fontFamily="sans-serif"
       textAnchor="middle"
       className={className}
     >
-      {scale.ticks.map((yTick) => (
+      {ticks.map((xTick) => (
+        <g
+          className="tick x-tick"
+          opacity={1}
+          transform={`translate(${xTick[1] + tickOffset},${position === "top" ? -tickSize : 0})`}
+          key={`y-tick-${xTick[0]}-${xTick[1]}`}
+        >
+          <line stroke="currentColor" y1={tickSize} />
+          <text y={position === "top" ? -tickSize - 5 : tickSize} dy={"1em"}>
+            {tickFormatter?.(renderTickLabel(xTick[0])) ??
+              renderTickLabel(xTick[0])}
+          </text>
+        </g>
+      ))}
+      <AxisLine
+        className="domain x-domain"
+        x1={margin.left}
+        x2={width - margin.right}
+      />
+    </g>
+  );
+};
+
+export const YAxis = ({
+  className,
+  crossAxisPosition = "bottom",
+  height,
+  margin,
+  position = "left",
+  ticks,
+  tickFormatter = (tickVal) => tickVal.toString(),
+  tickOffset = 0,
+  tickSize = 8,
+  width,
+}: AxisProps<"y">) => {
+  return (
+    <g
+      transform={`
+        translate(${position === "left" ? margin.left : width + margin.left},
+        ${crossAxisPosition === "bottom" ? height + margin.top : 0})`}
+      fontSize={10}
+      fontFamily="sans-serif"
+      textAnchor="middle"
+      className={className}
+    >
+      {ticks.map((yTick) => (
         <g
           className="tick y-tick"
           opacity={1}
-          transform={`translate(0,${yTick[1]})`}
+          transform={`translate(0,${yTick[1] + tickOffset})`}
           key={`y-tick-${yTick[0]}-${yTick[1]}`}
         >
-          <line
-            stroke="currentColor"
-            x1={margin.left - tickSize}
-            x2={margin.left}
-          />
-          <text x={tickSize + 5} y="0.25em">
-            {scale.tickFormatter?.(renderTickLabel(yTick[0])) ??
+          <line stroke="currentColor" x1={0} x2={-tickSize} />
+          <text x={-tickSize - 15} y="0.25em">
+            {tickFormatter?.(renderTickLabel(yTick[0])) ??
               renderTickLabel(yTick[0])}
           </text>
         </g>
       ))}
       <AxisLine
         className="domain y-domain"
-        x1={margin.left}
-        x2={margin.left}
-        y1={-scale.length}
+        y1={crossAxisPosition === "top" ? margin.top : 0}
+        y2={crossAxisPosition === "top" ? height : -height}
       />
     </g>
   );

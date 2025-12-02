@@ -60,7 +60,9 @@ export const useIsMobile = () => {
 };
 
 export const useIsTablet = () => {
-  return useMediaQuery(`(max-width: ${DEVICE_MAX.tablet}px)`);
+  return useMediaQuery(
+    `(min-width: ${DEVICE_MAX.mobile + 1} and max-width: ${DEVICE_MAX.tablet}px)`,
+  );
 };
 
 export const useIsDesktop = () => {

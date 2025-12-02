@@ -2,13 +2,13 @@ import styled from "styled-components";
 
 import { AlphabetFrequency } from "./examples/AlphabetFrequency";
 import { FlexBox, media } from "./styled";
-import { ZoomableArea } from "./examples/ZoomableArea";
+import { AlphabetFrequencyHorizontal } from "./examples/AlphabetFrequencyHorizontal";
 
 function App() {
   return (
     <Page $flexDir="column">
       <AlphabetFrequency />
-      <ZoomableArea />
+      <AlphabetFrequencyHorizontal />
     </Page>
   );
 }
