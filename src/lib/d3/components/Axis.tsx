@@ -116,7 +116,11 @@ export const YAxis = ({
       <AxisLine
         className="domain y-domain"
         y1={crossAxisPosition === "top" ? margin.top : 0}
-        y2={crossAxisPosition === "top" ? height : -height}
+        y2={
+          crossAxisPosition === "top"
+            ? height + margin.top
+            : -height - margin.top
+        }
       />
     </g>
   );

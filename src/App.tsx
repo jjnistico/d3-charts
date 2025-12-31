@@ -3,12 +3,14 @@ import styled from "styled-components";
 import { AlphabetFrequency } from "./examples/AlphabetFrequency";
 import { FlexBox, media } from "./styled";
 import { AlphabetFrequencyHorizontal } from "./examples/AlphabetFrequencyHorizontal";
+import { StackedBar } from "./examples/StackedBar";
 
 function App() {
   return (
     <Page $flexDir="column">
       <AlphabetFrequency />
       <AlphabetFrequencyHorizontal />
+      <StackedBar />
     </Page>
   );
 }

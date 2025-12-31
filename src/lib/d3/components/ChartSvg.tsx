@@ -21,11 +21,7 @@ export const ChartSvg = ({
   const vbHeight = height + margin.bottom + margin.top;
 
   return (
-    <svg
-      viewBox={`0 0 ${vbWidth} ${vbHeight}`}
-      //   preserveAspectRatio="xMidYMax"
-      className={className}
-    >
+    <svg viewBox={`0 0 ${vbWidth} ${vbHeight}`} className={className}>
       {children}
     </svg>
   );

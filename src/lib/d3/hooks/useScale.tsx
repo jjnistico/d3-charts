@@ -2,13 +2,21 @@ import * as d3 from "d3";
 import { useMemo } from "react";
 import {
   type D3Scale,
+  type MethodChainable,
   type Scale,
-  type ScaleChainable,
   type ScaleI,
   type ScaleTick,
-} from "../types/scale";
-import { getEntries } from "../types/util";
+  getEntries,
+} from "../types";
 
+/**
+ * Create a scale of type `type`. Accepts a map of arguments which
+ * represents the setter methods for properties on the scale itself.
+ *
+ * @returns {D3Scale} scale The D3 instance for the scale
+ * @returns {ScaleTick[]} ticks - The position data for the axis ticks
+ * @returns {number} size The length of the axis
+ */
 export const useScale = <S extends Scale>({
   numTicks = 5,
   type,
@@ -16,13 +24,13 @@ export const useScale = <S extends Scale>({
 }: {
   numTicks?: number;
   type: S;
-} & Partial<ScaleChainable<S>>): {
+} & Partial<MethodChainable<S>>): {
   scale: ScaleI<S>;
   ticks: ScaleTick[];
   size: number;
 } => {
   const scale = useMemo(() => {
-    let d3Scale;
+    let d3Scale: D3Scale;
     switch (type) {
       case "band":
         d3Scale = d3.scaleBand();
@@ -34,7 +42,7 @@ export const useScale = <S extends Scale>({
         d3Scale = d3.scaleLog();
         break;
       case "ordinal":
-        d3Scale = d3.scaleOrdinal<number>();
+        d3Scale = d3.scaleOrdinal<string, number>();
         break;
       case "point":
         d3Scale = d3.scalePoint();
@@ -51,6 +59,8 @@ export const useScale = <S extends Scale>({
       case "utc":
         d3Scale = d3.scaleUtc();
         break;
+      default:
+        throw new Error(`scale type ${type} not supported`);
     }
 
     for (const [func, val] of getEntries(chainables)) {
@@ -59,7 +69,7 @@ export const useScale = <S extends Scale>({
       }
     }
 
-    return d3Scale as D3Scale;
+    return d3Scale;
   }, [type, chainables]);
 
   // Generate position data for the ticks for this scale.
@@ -85,6 +95,9 @@ export const useScale = <S extends Scale>({
     }
   }, [scale]);
 
+  // Calculate the size of the axis (width for `x` or height for `y`)
+  // NOTE: The length is calculated the same for all D3 scale types, but
+  // the type system complains without using a discriminator (Hence the if/else)
   const size = useMemo(() => {
     let startBand: number | undefined;
     let endBand: number | undefined;

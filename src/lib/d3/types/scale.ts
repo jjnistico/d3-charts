@@ -44,25 +44,4 @@ export type ScaleI<T> = T extends "band"
                   ? d3.ScaleTime<number, number>
                   : never;
 
-/**
- * Create a map from methods of T where T is returned by the method
- * i.e. Suitable for method chaining
- */
-type ChainableMethods<T> = {
-  [K in keyof T]: T[K] extends (...args: infer Args) => infer Ret
-    ? Ret extends T
-      ? Args[number]
-      : never
-    : never;
-};
-
-type OmitNever<T> = { [K in keyof T as T[K] extends never ? never : K]: T[K] };
-
-/**
- * Create a map of chainable methods from a D3 Scale interface
- */
-export type ScaleChainable<T extends Scale> = OmitNever<
-  ChainableMethods<ScaleI<T>>
->;
-
 export type ScaleTick = [number | Date | string, number];
